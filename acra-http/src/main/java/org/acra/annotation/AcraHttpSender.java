@@ -22,6 +22,7 @@ import org.acra.ACRAConstants;
 import org.acra.config.BaseHttpConfigurationBuilder;
 import org.acra.security.KeyStoreFactory;
 import org.acra.security.NoKeyStoreFactory;
+import org.acra.security.TLS;
 import org.acra.sender.HttpSender;
 
 import java.lang.annotation.*;
@@ -32,6 +33,7 @@ import java.lang.annotation.*;
  * @author F43nd1r
  * @since 01.06.2017
  */
+@Deprecated
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -44,7 +46,7 @@ public @interface AcraHttpSender {
      * @return URI of a server to which to send reports.
      * @since 5.0.0
      */
-    @NonNull String uri();
+    @NonNull @AnyNonDefault String uri() default ACRAConstants.NULL_VALUE;
 
     /**
      * you can set here and in {@link org.acra.annotation.AcraHttpSender#basicAuthPassword()} the credentials for a BASIC HTTP authentication.
@@ -70,7 +72,7 @@ public @interface AcraHttpSender {
      * @return HTTP method used when posting reports.
      * @since 5.0.0
      */
-    @NonNull HttpSender.Method httpMethod();
+    @NonNull HttpSender.Method httpMethod() default HttpSender.Method.POST;
 
     /**
      * timeout for server connection
@@ -138,4 +140,15 @@ public @interface AcraHttpSender {
      * @since 5.2.0
      */
     boolean compress() default false;
+
+    /**
+     * Note: Older Android versions do not support all tls versions.
+     * This array has to contain at least one option supported on all android versions this runs on!
+     * ACRA will automatically remove unsupported versions on older devices.
+     *
+     * @return accepted tls protocols
+     * @since 5.7.0
+     * @see javax.net.ssl.SSLContext
+     */
+    @NonNull TLS[] tlsProtocols() default {TLS.V1_3, TLS.V1_2, TLS.V1_1, TLS.V1};
 }
